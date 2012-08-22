@@ -1,0 +1,21 @@
+[% BLOCK layout_head %]
+    [% script_manifest('logstatistics.js.manifest') %]
+[% END %]
+[% category_low = category FILTER lower | uri %]
+[% WRAPPER 'logstatistics/layout.tt' title=l("Category '{cat}'", {cat => category}) full_width=1 page=category_low %]
+    <h1>[% l("Category '{cat}'", {cat => category}) %]</h1>
+    [% l("Collected on: {collected}", {collected => UserDate.format(stats.0.timestamp) }) %]
+    [% FOREACH stat IN stats %]
+        <div>
+            <h2>[% l(stat.name) %]</h2>
+        </div>
+        <div id="data-[% stat.id %]" style="width:40%; float:left; display:inline-block; margin-right: 20px">
+            <table class="tbl">
+            </table>
+            <p id="more-data-[% stat.id %]" style="text-align:right;"><a href="#" onclick="return false;">(show more)</a></p>
+        </div>
+        <br/>
+        <div id="graph-[% stat.id %]" style="width:40%; height:250px; float:left; display:inline-block; top: -8px;"></div>
+        <div style="clear: both"></div>
+    [% END %]
+[% END %]

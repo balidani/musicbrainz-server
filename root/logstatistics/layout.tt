@@ -1,0 +1,16 @@
+[%- tab_links = [] -%]
+[% FOREACH my_category IN categories %]
+    [% my_category_low = my_category FILTER lower | uri %]
+    [% span = '<span class="mp"><a href="/log-statistics/' _ my_category_low _ '">' _ l(my_category) _ '</a></span>' %]
+    [% arr = [my_category_low, span] %]
+    [% tab_links.push(arr) %]
+[% END %]
+
+[%- WRAPPER "layout.tt" title=l("Log Statistics") _ " - ${title}" full_width=1 -%]
+    <div class="log_statistics_header">
+        <h1>[%- l('Log Statistics') -%]</h1>
+    </div>
+    [% INCLUDE 'components/tabs.tt' list=tab_links %]
+    <br/>
+    [%- content -%]
+[%- END -%]
