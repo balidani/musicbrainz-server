@@ -3,7 +3,6 @@ package MusicBrainz::Server::Controller::LogStatistic;
 use Moose;
 use namespace::autoclean;
 use MusicBrainz::Server::Data::LogStatistic;
-use Data::Dumper qw( Dumper );
 
 BEGIN { extends 'MusicBrainz::Server::Controller'; }
 
@@ -23,8 +22,7 @@ sub log_statistics : Path('') Args(1)
             categories  => $categories,
             category    => $category,
         );
-    } else {    
-        warn 'redir: ' . Dumper($category);
+    } else {
         $self->redirect_to_top_entities($c);
     }
 }
