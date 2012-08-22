@@ -2,7 +2,6 @@ package MusicBrainz::Server::Controller::LogStatistic;
 
 use Moose;
 use namespace::autoclean;
-use MusicBrainz::Server::Data::LogStatistic;
 
 BEGIN { extends 'MusicBrainz::Server::Controller'; }
 

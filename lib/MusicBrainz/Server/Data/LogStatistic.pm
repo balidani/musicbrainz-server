@@ -48,8 +48,6 @@ sub get_categories
     # Caching
     my $cache = $self->c->cache($CACHE_PREFIX);
     my $categories = $cache->get($CACHE_KEY);
-    return $categories
-        if defined $categories;
     
     if (!$categories) {
         # Select reports from the database
@@ -58,8 +56,9 @@ sub get_categories
         $categories = $self->sql->select_single_column_array($data_query) or return;
 
         $cache->set($CACHE_KEY, $categories);
-        return $categories;
     }
+    
+    return $categories;
 }
 
 sub get_category

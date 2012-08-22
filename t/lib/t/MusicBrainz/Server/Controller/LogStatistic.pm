@@ -20,18 +20,16 @@ test 'Can load log statistics' => sub {
 test 'Can load categories' => sub {
     my $test = shift;
     my $c = $test->c;
-    my $categories = $c->model('LogStatistic')->get_urls_to_categories;
+    my $categories = $c->model('LogStatistic')->get_categories;
     
     MusicBrainz::Server::Test->prepare_test_database($test->c);
     
-    foreach my $key ( keys %$categories ) {
-        $test->mech->get_ok('/log-statistics/' . $key);
+    foreach my $category ( @$categories ) {
+        $test->mech->get_ok('/log-statistics/' . $category);
         html_ok($test->mech->content);
         
-        my $category_name = $categories->{$key};
-        # Replace any special character that could cause trouble in a regex
-        $category_name =~ s/[^a-zA-Z0-9]/./g;
-        $test->mech->content_like(qr{$category_name});
+        $category =~ s/[^a-zA-Z0-9]/./g;
+        $test->mech->content_like(qr{$category});
     }
 };
 

@@ -1,4 +1,4 @@
-    package MusicBrainz::Server::Entity::LogStatistic;
+package MusicBrainz::Server::Entity::LogStatistic;
 use Moose;
 use namespace::autoclean;
 
