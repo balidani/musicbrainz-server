@@ -1,8 +1,9 @@
 package t::MusicBrainz::Server::Controller::LogStatistic;
+
 use Test::Routine;
 use Test::More;
-
 use MusicBrainz::Server::Test qw( html_ok );
+use DateTime::Format::Pg;
 
 with 't::Context', 't::Mechanize';
 
@@ -39,13 +40,15 @@ test 'Can load json data' => sub {
     
     MusicBrainz::Server::Test->prepare_test_database($test->c);
     
-    my $query = "SELECT id FROM " 
+    my $query = "SELECT category, timestamp FROM " 
         . $c->model('LogStatistic')->_table 
         . " LIMIT 1";
     
-    my $id = $c->sql->select_single_value($query);
+    my $row = $c->sql->select_single_row_hash($query);
+    my $dt = DateTime::Format::Pg->parse_datetime($row->{timestamp});
+    my $epoch = $dt->epoch;
     
-    $test->mech->get_ok('/log-statistics/json/' . $id);
+    $test->mech->get_ok('/log-statistics/json/' . $row->{category} . '/' . $epoch);
     html_ok($test->mech->content);
     $test->mech->content_like(qr{data});
 };

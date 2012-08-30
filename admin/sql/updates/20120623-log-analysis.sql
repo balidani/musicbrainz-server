@@ -3,12 +3,11 @@ BEGIN;
 
 CREATE TABLE log_statistic
 (
-    id                  SERIAL, -- PK
-    timestamp           TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    category            TEXT NOT NULL,
+    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
+    category            TEXT NOT NULL, -- PK
     data                TEXT NOT NULL -- JSON data
 );
 
-ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (id);
+ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (timestamp, category);
 
 COMMIT;

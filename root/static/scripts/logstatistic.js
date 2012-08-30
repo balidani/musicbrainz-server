@@ -17,28 +17,30 @@
 */
 
 $(function () {
-    // Take the numbers from div identifiers
-    var ids = $.map($("div[id^='data-']"), function(e) { return e.id.substr('data-'.length) });
     
-    for (var i = 0; i < ids.length; ++i) {
-        var id = ids[i];
+    var divs = $(".data");
+    
+    for (var i = 0; i < divs.length; ++i) {
+        var category = $(divs[i]).attr("statistic-category");
+        var timestamp = $(divs[i]).attr("statistic-timestamp");
         
         // Fetch data with ajax
         $.ajax({
-            url: '/log-statistics/json/' + id,
+            url: '/log-statistics/json/' + category + '/' + timestamp,
             dataType: 'json',
-            asyncId: id,
+            aCategory: category,
+            aTimestamp: timestamp,
             success: function(json) {
-                populateTable(this.asyncId, json);
-                createGraph(this.asyncId, json);
+                populateTable(this.aCategory, this.aTimestamp, json);
+                createGraph(this.aCategory, this.aTimestamp, json);
             }
         });
     }
     
     // Populates tables with data from json
-    function populateTable(id, json) {
+    function populateTable(category, timestamp, json) {
         
-        var table = $("#data-" + id + " table")[0];
+        var table = $('div[class="data"][statistic-category="'+category+'"][statistic-timestamp="'+timestamp+'"]').children("table")[0];
         
         // Create innerHTML for table
         var tableData = '<thead><tr><th>#</th>';
@@ -67,29 +69,29 @@ $(function () {
         table.innerHTML = tableData;
         
         // Hide rows over the limit given
-        hideRows(id, json.display.limit);
+        hideRows(table, json.display.limit);
         
         // Handle "show more" label
-        if ($("#data-" + id + " table")[0].tBodies[0].rows.length <= json.display.limit) {
-            $("#more-data-" + id).hide();
+        var more_data = $('p[class="more-data"][statistic-category="'+category+'"][statistic-timestamp="'+timestamp+'"]');
+        if (table.tBodies[0].rows.length <= json.display.limit) {
+            more_data.hide();
         } else {
-            $("#more-data-" + id).click(function() {
+            more_data.click(function() {
                 if ($(this).children().text() == "(show more)") {
-                    $($("#data-" + id + " table")[0].tBodies[0].rows).show();
+                    $(table.tBodies[0].rows).show();
                     $(this).children().text("(show less)");
                 } else {
-                    hideRows(id, json.display.limit);
+                    hideRows(table, json.display.limit, 0);
                     $(this).children().text("(show more)");
                 }
             });
         }
-        
     }
     
     // Displays graphs, handles tables that contain data
-    function createGraph(id, json) {
+    function createGraph(category, timestamp, json) {
     
-        var graph = $("#graph-" + id);
+        var graph = $('div[class="graph"][statistic-category="'+category+'"][statistic-timestamp="'+timestamp+'"]');
         var data;
         var options;
         
@@ -97,7 +99,7 @@ $(function () {
         // Make the table full-width
         if (!json.display.mapping) {
             graph.hide();
-            $("#data-" + id)[0].style.width = "90%";
+            $('div[class="data"][statistic-category="'+category+'"][statistic-timestamp="'+timestamp+'"]')[0].style.width = "90%";
             return;
         }
         
@@ -160,8 +162,8 @@ $(function () {
         $.plot(graph, data, options);
         graph.resize(function () {});
     }
-    
-    function hideRows(id, limit, speed) {
-        $($($("#data-" + id + " table")[0].tBodies[0].rows).splice(limit)).hide();
+
+    function hideRows(table, limit, speed) {
+        $($(table.tBodies[0].rows).splice(limit)).hide();
     }
 });

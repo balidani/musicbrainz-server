@@ -9,7 +9,7 @@ __PACKAGE__->config(
     namespace   => 'log-statistics',
 );
 
-sub log_statistics : Path('') Args(1)
+sub view_category : Path('') Args(1)
 {
     my ($self, $c, $category) = @_;
     my $categories = $c->model('LogStatistic')->get_categories;
@@ -32,11 +32,11 @@ sub redirect_to_top_entities : Path('')
     $c->response->redirect($c->uri_for("/log-statistics/top%20entities"), 303);
 }
 
-sub json : Local Args(1)
+sub json : Local Args(2)
 {
-    my ($self, $c, $stat) = @_;
+    my ($self, $c, $category, $timestamp) = @_;
     $c->res->content_type('application/json');
-    $c->res->body($c->model('LogStatistic')->get_json($stat));
+    $c->res->body($c->model('LogStatistic')->get_json($category, $timestamp));
 }
 
 # __PACKAGE__->meta->make_immutable;

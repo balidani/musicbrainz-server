@@ -7,6 +7,10 @@ use MusicBrainz::Server::Entity::LogStatistic;
 use MusicBrainz::Server::Data::Utils qw( placeholders query_to_list );
 use JSON::Any;
 
+use Data::Dumper qw( Dumper );
+use DateTime::Format::Pg;
+use DateTime::Format::Natural;
+
 extends 'MusicBrainz::Server::Data::Entity';
 
 Readonly my $CACHE_PREFIX => 'logstatistic';
@@ -19,13 +23,12 @@ sub _table
 
 sub _columns 
 { 
-    return 'id, category, timestamp, data';
+    return 'category, timestamp, data';
 }
 
 sub _column_mapping 
 {
     return {
-        id => 'id',
         name => sub { 
             my ($row, $prefix) = @_;
             my $decoded_href = JSON::Any->new( utf8 => 1 )->jsonToObj($row->{"${prefix}data"}); 
@@ -69,7 +72,7 @@ sub get_category
     my $data_query = "SELECT " . $self->_columns 
                    . " FROM " . $self->_table
                    . " WHERE lower(category) = ?"
-                   . " ORDER BY id";
+                   . " ORDER BY timestamp";
     
     my @log_stats = query_to_list(
         $self->c->sql, 
@@ -83,14 +86,14 @@ sub get_category
 
 sub get_json
 {
-    my ($self, $stat) = @_;
+    my ($self, $category, $epoch) = @_;
     my $data_query = "SELECT data"
                    . " FROM " . $self->_table
-                   . " WHERE id = ?";
-    $self->sql->select($data_query, $stat) or return;
-    
-    my $row = $self->sql->next_row_hash_ref;
-    return $row->{'data'};
+                   . " WHERE category = ? AND date_trunc('second', timestamp) = ?";
+                   
+    my $dt = DateTime->from_epoch( epoch => $epoch );
+    $dt = DateTime::Format::Pg->format_datetime($dt);
+    return $self->sql->select_single_value($data_query, $category, $dt);
 }
 
 __PACKAGE__->meta->make_immutable;
