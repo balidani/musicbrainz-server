@@ -34,13 +34,14 @@ sub redirect_to_top_entities : Path('')
 
 sub json : Local Args(2)
 {
-    my ($self, $c, $category, $timestamp) = @_;
+    my ($self, $c, $category, $epoch) = @_;
+    
+    my $dt = DateTime->from_epoch( epoch => $epoch );
+    
     $c->res->content_type('application/json');
-    $c->res->body($c->model('LogStatistic')->get_json($category, $timestamp));
+    $c->res->body($c->model('LogStatistic')->get_json($category, $dt));
 }
 
-# __PACKAGE__->meta->make_immutable;
-# no Moose;
 1;
 
 =head1 COPYRIGHT

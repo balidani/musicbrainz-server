@@ -5,7 +5,7 @@ use Readonly;
 use namespace::autoclean;
 use MusicBrainz::Server::Entity::LogStatistic;
 use MusicBrainz::Server::Data::Utils qw( placeholders query_to_list );
-use JSON::Any;
+use JSON;
 
 use Data::Dumper qw( Dumper );
 use DateTime::Format::Pg;
@@ -86,14 +86,14 @@ sub get_category
 
 sub get_json
 {
-    my ($self, $category, $epoch) = @_;
+    my ($self, $category, $dt) = @_;
     my $data_query = "SELECT data"
                    . " FROM " . $self->_table
                    . " WHERE category = ? AND date_trunc('second', timestamp) = ?";
-                   
-    my $dt = DateTime->from_epoch( epoch => $epoch );
-    $dt = DateTime::Format::Pg->format_datetime($dt);
-    return $self->sql->select_single_value($data_query, $category, $dt);
+    
+    my $timestamp = DateTime::Format::Pg->format_datetime($dt);
+    
+    return $self->sql->select_single_value($data_query, $category, $timestamp);
 }
 
 __PACKAGE__->meta->make_immutable;
