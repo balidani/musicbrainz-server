@@ -9,13 +9,13 @@
         <div>
             <h2>[% l(stat.name) %]</h2>
         </div>
-        <div class="data" statistic-category="[% stat.category %]" statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; float:left; display:inline-block; margin-right: 20px">
+        <div class="data" data-statistic-category="[% stat.category %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; float:left; display:inline-block; margin-right: 20px">
             <table class="tbl">
             </table>
-            <p class="more-data" statistic-category="[% stat.category %]" statistic-timestamp="[% stat.timestamp.epoch %]" style="text-align:right;"><a href="#" onclick="return false;">(show more)</a></p>
+            <p class="more-data" data-statistic-category="[% stat.category %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="text-align:right;"><a href="#" onclick="return false;">(show more)</a></p>
         </div>
         <br/>
-        <div class="graph" statistic-category="[% stat.category %]" statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; height:250px; float:left; display:inline-block; top: -8px;"></div>
+        <div class="graph" data-statistic-category="[% stat.category %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; height:250px; float:left; display:inline-block; top: -8px;"></div>
         <div style="clear: both"></div>
     [% END %]
 [% END %]
