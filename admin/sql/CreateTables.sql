@@ -880,8 +880,9 @@ CREATE TABLE link_type_attribute_type
 
 CREATE TABLE log_statistic
 (
-    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
+    name                TEXT NOT NULL, -- PK
     category            TEXT NOT NULL, -- PK
+    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
     data                TEXT NOT NULL -- JSON data
 );
 

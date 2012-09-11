@@ -3,11 +3,12 @@ BEGIN;
 
 CREATE TABLE log_statistic
 (
-    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
+    name                TEXT NOT NULL, -- PK
     category            TEXT NOT NULL, -- PK
+    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
     data                TEXT NOT NULL -- JSON data
 );
 
-ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (timestamp, category);
+ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (name, category, timestamp);
 
 COMMIT;
