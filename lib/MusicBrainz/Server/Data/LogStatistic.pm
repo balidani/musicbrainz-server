@@ -14,7 +14,8 @@ use DateTime::Format::Natural;
 extends 'MusicBrainz::Server::Data::Entity';
 
 Readonly my $CACHE_PREFIX => 'logstatistic';
-Readonly my $CACHE_KEY => 'logstatistic-category';
+Readonly my $CATEGORY_KEY => 'logstatistic-category';
+Readonly my $DATETIME_KEY => 'logstatistic-datetime';
 
 sub _table 
 { 
@@ -23,17 +24,13 @@ sub _table
 
 sub _columns 
 { 
-    return 'category, timestamp, data';
+    return 'name, category, timestamp, data';
 }
 
 sub _column_mapping 
 {
     return {
-        name => sub { 
-            my ($row, $prefix) = @_;
-            my $decoded_href = JSON::Any->new( utf8 => 1 )->jsonToObj($row->{"${prefix}data"}); 
-            return $decoded_href->{'name'}; 
-        },
+        name => 'name',
         category => 'category',
         timestamp => 'timestamp'
     };
@@ -44,13 +41,39 @@ sub _entity_class
     return 'MusicBrainz::Server::Entity::LogStatistic';
 }
 
+sub get_datetimes
+{
+    my $self = shift;
+
+    # Caching
+    my $cache = $self->c->cache($CACHE_PREFIX);
+    my $datetimes = $cache->get($DATETIME_KEY);
+    
+    if (!$datetimes) {
+        # Select reports from the database
+        my $data_query = "SELECT DISTINCT timestamp"
+                       . " FROM " . $self->_table 
+                       . " ORDER BY timestamp DESC";
+        $datetimes = $self->sql->select_single_column_array($data_query) or return;
+
+        # Parse DateTime objects
+        foreach my $datetime (@$datetimes) {
+            $datetime = DateTime::Format::Pg->parse_timestamp($datetime);
+        }
+        
+        $cache->set($DATETIME_KEY, $datetimes);
+    }
+    
+    return $datetimes;
+}
+
 sub get_categories
 {
     my $self = shift;
 
     # Caching
     my $cache = $self->c->cache($CACHE_PREFIX);
-    my $categories = $cache->get($CACHE_KEY);
+    my $categories = $cache->get($CATEGORY_KEY);
     
     if (!$categories) {
         # Select reports from the database
@@ -58,7 +81,7 @@ sub get_categories
                        . " FROM " . $self->_table;
         $categories = $self->sql->select_single_column_array($data_query) or return;
 
-        $cache->set($CACHE_KEY, $categories);
+        $cache->set($CATEGORY_KEY, $categories);
     }
     
     return $categories;
@@ -66,19 +89,21 @@ sub get_categories
 
 sub get_category
 {
-    my ($self, $category) = @_;
+    my ($self, $category, $datetime) = @_;
     
     # Select reports from the database with this category
     my $data_query = "SELECT " . $self->_columns 
                    . " FROM " . $self->_table
                    . " WHERE lower(category) = ?"
-                   . " ORDER BY timestamp";
+                   . " AND date_trunc('second', timestamp) = ?"
+                   . " ORDER BY name";
     
     my @log_stats = query_to_list(
         $self->c->sql, 
         sub { $self->_new_from_row(shift) },
         $data_query,
-        $category
+        $category,
+        DateTime::Format::Pg->format_datetime($datetime)
     );
     
     return \@log_stats;
@@ -86,14 +111,16 @@ sub get_category
 
 sub get_json
 {
-    my ($self, $category, $dt) = @_;
+    my ($self, $category, $name, $dt) = @_;
     my $data_query = "SELECT data"
                    . " FROM " . $self->_table
-                   . " WHERE category = ? AND date_trunc('second', timestamp) = ?";
+                   . " WHERE category = ?"
+                   . " AND name = ?"
+                   . " AND date_trunc('second', timestamp) = ?";
     
     my $timestamp = DateTime::Format::Pg->format_datetime($dt);
     
-    return $self->sql->select_single_value($data_query, $category, $timestamp);
+    return $self->sql->select_single_value($data_query, $category, $name, $timestamp);
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -26,7 +26,7 @@ test 'Can load categories' => sub {
     MusicBrainz::Server::Test->prepare_test_database($test->c);
     
     foreach my $category ( @$categories ) {
-        $test->mech->get_ok('/log-statistics/' . $category);
+        $test->mech->get_ok('/log-statistics/' . lc($category));
         html_ok($test->mech->content);
         
         $category =~ s/[^a-zA-Z0-9]/./g;
@@ -40,7 +40,7 @@ test 'Can load json data' => sub {
     
     MusicBrainz::Server::Test->prepare_test_database($test->c);
     
-    my $query = "SELECT category, timestamp FROM " 
+    my $query = "SELECT category, name, timestamp FROM " 
         . $c->model('LogStatistic')->_table 
         . " LIMIT 1";
     
@@ -48,7 +48,7 @@ test 'Can load json data' => sub {
     my $dt = DateTime::Format::Pg->parse_datetime($row->{timestamp});
     my $epoch = $dt->epoch;
     
-    $test->mech->get_ok('/log-statistics/json/' . $row->{category} . '/' . $epoch);
+    $test->mech->get_ok('/log-statistics/json/' . $row->{category} . '/' . $row->{name} . '/' . $epoch);
     html_ok($test->mech->content);
     $test->mech->content_like(qr{data});
 };

@@ -2,6 +2,7 @@ package MusicBrainz::Server::Controller::LogStatistic;
 
 use Moose;
 use namespace::autoclean;
+use Data::Dumper qw( Dumper );
 
 BEGIN { extends 'MusicBrainz::Server::Controller'; }
 
@@ -12,14 +13,30 @@ __PACKAGE__->config(
 sub view_category : Path('') Args(1)
 {
     my ($self, $c, $category) = @_;
+
+    my $datetimes = $c->model('LogStatistic')->get_datetimes;
+    $self->view_category_with_timestamp($c, $category, $datetimes->[0]->epoch);
+    
+}
+
+sub view_category_with_timestamp : Path('') Args(2)
+{
+    my ($self, $c, $category, $epoch) = @_;
+    
     my $categories = $c->model('LogStatistic')->get_categories;
     my @categories_lc = map { lc($_) } @$categories;
+    
+    my $datetimes = $c->model('LogStatistic')->get_datetimes;
+    my $datetime = DateTime->from_epoch( epoch => $epoch );
+    
     if ($category ~~ \@categories_lc) {
         $c->stash(
             template    => 'logstatistics/category.tt',
-            stats       => $c->model('LogStatistic')->get_category($category),
+            stats       => $c->model('LogStatistic')->get_category($category, $datetime),
             categories  => $categories,
+            datetimes   => $datetimes,
             category    => $category,
+            datetime    => $datetime
         );
     } else {
         $self->redirect_to_top_entities($c);
@@ -32,14 +49,14 @@ sub redirect_to_top_entities : Path('')
     $c->response->redirect($c->uri_for("/log-statistics/top%20entities"), 303);
 }
 
-sub json : Local Args(2)
+sub json : Local Args(3)
 {
-    my ($self, $c, $category, $epoch) = @_;
+    my ($self, $c, $category, $name, $epoch) = @_;
     
     my $dt = DateTime->from_epoch( epoch => $epoch );
     
     $c->res->content_type('application/json');
-    $c->res->body($c->model('LogStatistic')->get_json($category, $dt));
+    $c->res->body($c->model('LogStatistic')->get_json($category, $name, $dt));
 }
 
 1;
