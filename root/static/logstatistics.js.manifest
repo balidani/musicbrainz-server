@@ -1,3 +1,4 @@
 lib/flot/jquery.flot.js
 lib/flot/jquery.flot.pie.js
 scripts/logstatistic.js
+lib/jquery.ui/ui/jquery.ui.datepicker.js

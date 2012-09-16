@@ -7,15 +7,12 @@ use MusicBrainz::Server::Entity::LogStatistic;
 use MusicBrainz::Server::Data::Utils qw( placeholders query_to_list );
 use JSON;
 
-use Data::Dumper qw( Dumper );
 use DateTime::Format::Pg;
-use DateTime::Format::Natural;
 
 extends 'MusicBrainz::Server::Data::Entity';
 
 Readonly my $CACHE_PREFIX => 'logstatistic';
 Readonly my $CATEGORY_KEY => 'logstatistic-category';
-Readonly my $DATETIME_KEY => 'logstatistic-datetime';
 
 sub _table 
 { 
@@ -45,23 +42,15 @@ sub get_datetimes
 {
     my $self = shift;
 
-    # Caching
-    my $cache = $self->c->cache($CACHE_PREFIX);
-    my $datetimes = $cache->get($DATETIME_KEY);
-    
-    if (!$datetimes) {
-        # Select reports from the database
-        my $data_query = "SELECT DISTINCT timestamp"
-                       . " FROM " . $self->_table 
-                       . " ORDER BY timestamp DESC";
-        $datetimes = $self->sql->select_single_column_array($data_query) or return;
+    # Select timestamps from the database
+    my $data_query = "SELECT DISTINCT timestamp"
+                   . " FROM " . $self->_table 
+                   . " ORDER BY timestamp DESC";
+    my $datetimes = $self->sql->select_single_column_array($data_query) or return;
 
-        # Parse DateTime objects
-        foreach my $datetime (@$datetimes) {
-            $datetime = DateTime::Format::Pg->parse_timestamp($datetime);
-        }
-        
-        $cache->set($DATETIME_KEY, $datetimes);
+    # Parse DateTime objects
+    foreach my $datetime (@$datetimes) {
+        $datetime = DateTime::Format::Pg->parse_timestamp($datetime);
     }
     
     return $datetimes;

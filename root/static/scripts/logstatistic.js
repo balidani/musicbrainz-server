@@ -18,29 +18,36 @@
 
 $(function () {
     
+    $( "#datepicker" ).datepicker();
+    
     var divs = $(".data");
     
     for (var i = 0; i < divs.length; ++i) {
         var category = $(divs[i]).attr("data-statistic-category");
+        var name = $(divs[i]).attr("data-statistic-name");
         var timestamp = $(divs[i]).attr("data-statistic-timestamp");
         
         // Fetch data with ajax
         $.ajax({
-            url: '/log-statistics/json/' + category + '/' + timestamp,
+            url: '/log-statistics/json/' + encodeURIComponent(category) + '/' + encodeURIComponent(name) + '/' + timestamp,
             dataType: 'json',
             aCategory: category,
+            aName: name,
             aTimestamp: timestamp,
             success: function(json) {
-                populateTable(this.aCategory, this.aTimestamp, json);
-                createGraph(this.aCategory, this.aTimestamp, json);
+                populateTable(this.aCategory, this.aName, this.aTimestamp, json);
+                createGraph(this.aCategory, this.aName, this.aTimestamp, json);
             }
         });
     }
     
     // Populates tables with data from json
-    function populateTable(category, timestamp, json) {
+    function populateTable(category, name, timestamp, json) {
         
-        var table = $('div[class="data"][data-statistic-category="'+category+'"][data-statistic-timestamp="'+timestamp+'"]').children("table")[0];
+        var table = $('div[class="data"]'
+            + '[data-statistic-category="'+category+'"]'
+            + '[data-statistic-name="'+name+'"]'
+            + '[data-statistic-timestamp="'+timestamp+'"]').children("table")[0];
         
         // Create innerHTML for table
         var tableData = '<thead><tr><th>#</th>';
@@ -72,7 +79,11 @@ $(function () {
         hideRows(table, json.display.limit);
         
         // Handle "show more" label
-        var more_data = $('p[class="more-data"][data-statistic-category="'+category+'"][data-statistic-timestamp="'+timestamp+'"]');
+        var more_data = $('p[class="more-data"]'
+            + '[data-statistic-category="'+category+'"]'
+            + '[data-statistic-name="'+name+'"]'
+            + '[data-statistic-timestamp="'+timestamp+'"]');
+            
         if (table.tBodies[0].rows.length <= json.display.limit) {
             more_data.hide();
         } else {
@@ -89,9 +100,12 @@ $(function () {
     }
     
     // Displays graphs, handles tables that contain data
-    function createGraph(category, timestamp, json) {
+    function createGraph(category, name, timestamp, json) {
     
-        var graph = $('div[class="graph"][data-statistic-category="'+category+'"][data-statistic-timestamp="'+timestamp+'"]');
+        var graph = $('div[class="graph"]'
+            + '[data-statistic-category="'+category+'"]'
+            + '[data-statistic-name="'+name+'"]'
+            + '[data-statistic-timestamp="'+timestamp+'"]');
         var data;
         var options;
         
@@ -99,7 +113,10 @@ $(function () {
         // Make the table full-width
         if (!json.display.mapping) {
             graph.hide();
-            $('div[class="data"][data-statistic-category="'+category+'"][data-statistic-timestamp="'+timestamp+'"]')[0].style.width = "90%";
+            $('div[class="data"]'
+                + '[data-statistic-category="'+category+'"]'
+                + '[data-statistic-name="'+name+'"]'
+                + '[data-statistic-timestamp="'+timestamp+'"]')[0].style.width = "90%";
             return;
         }
         
