@@ -17,10 +17,24 @@
 */
 
 $(function () {
-    
-    $( "#datepicker" ).datepicker();
-    
+    var page_title = '/log-statistics';
     var divs = $(".data");
+    
+    // Datepicker functions
+    var category = $(divs[0]).attr("data-statistic-category");
+    $("#datepicker").datepicker({
+        dateFormat: "yy-mm-dd",
+        minDate: new Date($("#datepicker").attr("data-min-date")),
+        maxDate: new Date($("#datepicker").attr("data-max-date"))
+    });
+    $("#datebutton").click(function () {
+        window.location = page_title + '/' + encodeURIComponent(category).toLowerCase()
+            + '/' + $("#datepicker").datepicker({dateFormat: 'yy-mm-dd'}).val();
+    });
+    $("#date_changer").children().click(function () { 
+        $("#date_selector").show("slow"); 
+    });
+    
     
     for (var i = 0; i < divs.length; ++i) {
         var category = $(divs[i]).attr("data-statistic-category");
@@ -29,7 +43,7 @@ $(function () {
         
         // Fetch data with ajax
         $.ajax({
-            url: '/log-statistics/json/' + encodeURIComponent(category) + '/' + encodeURIComponent(name) + '/' + timestamp,
+            url: page_title + '/json/' + encodeURIComponent(category) + '/' + encodeURIComponent(name) + '/' + timestamp,
             dataType: 'json',
             aCategory: category,
             aName: name,

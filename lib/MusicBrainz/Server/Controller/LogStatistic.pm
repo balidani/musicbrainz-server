@@ -13,30 +13,26 @@ __PACKAGE__->config(
 sub view_category : Path('') Args(1)
 {
     my ($self, $c, $category) = @_;
-
-    my $datetimes = $c->model('LogStatistic')->get_datetimes;
-    $self->view_category_with_timestamp($c, $category, $datetimes->[0]->epoch);
-    
+    my $dates = $c->model('LogStatistic')->get_dates;
+    $self->view_category_with_timestamp($c, $category, $dates->[0]);
 }
 
 sub view_category_with_timestamp : Path('') Args(2)
 {
-    my ($self, $c, $category, $epoch) = @_;
+    my ($self, $c, $category, $date) = @_;
     
     my $categories = $c->model('LogStatistic')->get_categories;
     my @categories_lc = map { lc($_) } @$categories;
     
-    my $datetimes = $c->model('LogStatistic')->get_datetimes;
-    my $datetime = DateTime->from_epoch( epoch => $epoch );
+    my $dates = $c->model('LogStatistic')->get_dates;
     
     if ($category ~~ \@categories_lc) {
         $c->stash(
             template    => 'logstatistics/category.tt',
-            stats       => $c->model('LogStatistic')->get_category($category, $datetime),
+            stats       => $c->model('LogStatistic')->get_category($category, $date),
             categories  => $categories,
-            datetimes   => $datetimes,
             category    => $category,
-            datetime    => $datetime
+            dates       => $dates
         );
     } else {
         $self->redirect_to_top_entities($c);
@@ -51,12 +47,10 @@ sub redirect_to_top_entities : Path('')
 
 sub json : Local Args(3)
 {
-    my ($self, $c, $category, $name, $epoch) = @_;
-    
-    my $dt = DateTime->from_epoch( epoch => $epoch );
+    my ($self, $c, $category, $name, $date) = @_;
     
     $c->res->content_type('application/json');
-    $c->res->body($c->model('LogStatistic')->get_json($category, $name, $dt));
+    $c->res->body($c->model('LogStatistic')->get_json($category, $name, $date));
 }
 
 1;

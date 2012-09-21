@@ -38,7 +38,7 @@ sub _entity_class
     return 'MusicBrainz::Server::Entity::LogStatistic';
 }
 
-sub get_datetimes
+sub get_dates
 {
     my $self = shift;
 
@@ -46,14 +46,14 @@ sub get_datetimes
     my $data_query = "SELECT DISTINCT timestamp"
                    . " FROM " . $self->_table 
                    . " ORDER BY timestamp DESC";
-    my $datetimes = $self->sql->select_single_column_array($data_query) or return;
+    my $dates = $self->sql->select_single_column_array($data_query) or return;
 
     # Parse DateTime objects
-    foreach my $datetime (@$datetimes) {
-        $datetime = DateTime::Format::Pg->parse_timestamp($datetime);
+    foreach my $date (@$dates) {
+        $date = DateTime::Format::Pg->parse_timestamp($date)->ymd;
     }
     
-    return $datetimes;
+    return $dates;
 }
 
 sub get_categories
@@ -78,13 +78,13 @@ sub get_categories
 
 sub get_category
 {
-    my ($self, $category, $datetime) = @_;
+    my ($self, $category, $date) = @_;
     
     # Select reports from the database with this category
     my $data_query = "SELECT " . $self->_columns 
                    . " FROM " . $self->_table
                    . " WHERE lower(category) = ?"
-                   . " AND date_trunc('second', timestamp) = ?"
+                   . " AND date_trunc('day', timestamp) = ?"
                    . " ORDER BY name";
     
     my @log_stats = query_to_list(
@@ -92,7 +92,7 @@ sub get_category
         sub { $self->_new_from_row(shift) },
         $data_query,
         $category,
-        DateTime::Format::Pg->format_datetime($datetime)
+        DateTime::Format::Pg->parse_date($date)
     );
     
     return \@log_stats;
@@ -100,16 +100,16 @@ sub get_category
 
 sub get_json
 {
-    my ($self, $category, $name, $dt) = @_;
+    my ($self, $category, $name, $date) = @_;
     my $data_query = "SELECT data"
                    . " FROM " . $self->_table
                    . " WHERE category = ?"
                    . " AND name = ?"
-                   . " AND date_trunc('second', timestamp) = ?";
+                   . " AND date_trunc('day', timestamp) = ?";
     
-    my $timestamp = DateTime::Format::Pg->format_datetime($dt);
+    $date = DateTime::Format::Pg->parse_date($date);
     
-    return $self->sql->select_single_value($data_query, $category, $name, $timestamp);
+    return $self->sql->select_single_value($data_query, $category, $name, $date);
 }
 
 __PACKAGE__->meta->make_immutable;

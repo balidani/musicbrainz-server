@@ -3,27 +3,28 @@
     [% css_manifest('logstatistics.css.manifest') %]
 [% END %]
 [% category_low = category FILTER lower | uri %]
-[% WRAPPER 'logstatistics/layout.tt' title=l("Category '{cat}'", {cat => stats.0.category}) full_width=1 page=category_low %]
-    <h1>[% l("Category '{cat}'", {cat => stats.0.category}) %]</h1>
+[% WRAPPER 'logstatistics/layout.tt' title=l("Category '{cat}'", {cat => category}) full_width=1 page=category_low %]
+    <h1>[% l("Category '{cat}'", {cat => category}) %]</h1>
     <br/>
-    [% l("Collected on: {collected}", {collected => stats.0.timestamp.date }) %]
+    [% l("Collected on: {collected}", {collected => stats.0.timestamp.date }) %] 
+    <span id="date_changer">
+        <a href="#">Need a different date?</a>
+    </span>
     <br/>
-    Date: <input type="text" id="datepicker">
-    <br/>
-    [% FOREACH dt IN datetimes %]
-        <a href="/log-statistics/[% category | uri %]/[% dt.epoch %]">[% dt.date %]</a><br/>
-    [% END %]
+    <span id="date_selector" style="display: none;">
+        Date: <input type="text" id="datepicker" data-min-date="[% dates.last %]" data-max-date="[% dates.first %]"/> <input id="datebutton" type="submit" value="Go"/>
+    </span>
     [% FOREACH stat IN stats %]
         <div>
             <h2>[% l(stat.name) %]</h2>
         </div>
-        <div class="data" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; float:left; display:inline-block; margin-right: 20px">
+        <div class="data" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.date %]" style="width:40%; float:left; display:inline-block; margin-right: 20px">
             <table class="tbl">
             </table>
-            <p class="more-data" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="text-align:right;"><a href="#" onclick="return false;">(show more)</a></p>
+            <p class="more-data" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.date %]" style="text-align:right;"><a href="#" onclick="return false;">(show more)</a></p>
         </div>
         <br/>
-        <div class="graph" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.epoch %]" style="width:40%; height:250px; float:left; display:inline-block; top: -8px;"></div>
+        <div class="graph" data-statistic-category="[% stat.category %]" data-statistic-name="[% stat.name %]" data-statistic-timestamp="[% stat.timestamp.date %]" style="width:40%; height:250px; float:left; display:inline-block; top: -8px;"></div>
         <div style="clear: both"></div>
     [% END %]
 [% END %]

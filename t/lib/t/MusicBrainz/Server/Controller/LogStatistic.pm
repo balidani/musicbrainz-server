@@ -45,10 +45,10 @@ test 'Can load json data' => sub {
         . " LIMIT 1";
     
     my $row = $c->sql->select_single_row_hash($query);
-    my $dt = DateTime::Format::Pg->parse_datetime($row->{timestamp});
-    my $epoch = $dt->epoch;
     
-    $test->mech->get_ok('/log-statistics/json/' . $row->{category} . '/' . $row->{name} . '/' . $epoch);
+    my $date = DateTime::Format::Pg->parse_timestamp($row->{timestamp})->ymd;
+    
+    $test->mech->get_ok('/log-statistics/json/' . $row->{category} . '/' . $row->{name} . '/' . $date);
     html_ok($test->mech->content);
     $test->mech->content_like(qr{data});
 };

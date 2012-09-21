@@ -131,6 +131,9 @@
                 <a href="[% c.uri_for('/statistics') %]">[% l('Statistics') %]</a>
             </li>
             <li>
+                <a href="[% c.uri_for('/log-statistics') %]">[% l('Log Statistics') %]</a>
+            </li>
+            <li>
                 <a href="[% c.uri_for('/statistics/timeline') %]">[% l('Timeline Graph') %]</a>
             </li>
         </ul>
