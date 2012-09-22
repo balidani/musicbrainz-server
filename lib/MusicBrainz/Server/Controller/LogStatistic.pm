@@ -2,7 +2,6 @@ package MusicBrainz::Server::Controller::LogStatistic;
 
 use Moose;
 use namespace::autoclean;
-use Data::Dumper qw( Dumper );
 
 BEGIN { extends 'MusicBrainz::Server::Controller'; }
 
