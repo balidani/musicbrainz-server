@@ -85,7 +85,7 @@ sub get_category
                    . " FROM " . $self->_table
                    . " WHERE lower(category) = ?"
                    . " AND date_trunc('day', timestamp) = ?"
-                   . " ORDER BY name";
+                   . " ORDER BY name, timestamp";
     
     my @log_stats = query_to_list(
         $self->c->sql, 
@@ -105,7 +105,8 @@ sub get_json
                    . " FROM " . $self->_table
                    . " WHERE category = ?"
                    . " AND name = ?"
-                   . " AND date_trunc('day', timestamp) = ?";
+                   . " AND date_trunc('day', timestamp) = ?"
+                   . " ORDER BY timestamp";
     
     $date = DateTime::Format::Pg->parse_date($date);
     
