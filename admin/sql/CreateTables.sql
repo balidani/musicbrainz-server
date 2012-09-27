@@ -878,14 +878,6 @@ CREATE TABLE link_type_attribute_type
     last_updated        TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE TABLE log_statistic
-(
-    name                TEXT NOT NULL, -- PK
-    category            TEXT NOT NULL, -- PK
-    timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), -- PK
-    data                TEXT NOT NULL -- JSON data
-);
-
 CREATE TABLE editor_collection
 (
     id                  SERIAL,

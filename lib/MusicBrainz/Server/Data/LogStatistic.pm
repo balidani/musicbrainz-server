@@ -16,7 +16,7 @@ Readonly my $CATEGORY_KEY => 'logstatistic-category';
 
 sub _table 
 { 
-    return 'log_statistic';
+    return 'statistics.log_statistic';
 }
 
 sub _columns 

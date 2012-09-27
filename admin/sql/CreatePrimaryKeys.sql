@@ -92,7 +92,6 @@ ALTER TABLE link_attribute ADD CONSTRAINT link_attribute_pkey PRIMARY KEY (link,
 ALTER TABLE link_attribute_type ADD CONSTRAINT link_attribute_type_pkey PRIMARY KEY (id);
 ALTER TABLE link_type ADD CONSTRAINT link_type_pkey PRIMARY KEY (id);
 ALTER TABLE link_type_attribute_type ADD CONSTRAINT link_type_attribute_type_pkey PRIMARY KEY (link_type, attribute_type);
-ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (name, category, timestamp);
 ALTER TABLE medium ADD CONSTRAINT medium_pkey PRIMARY KEY (id);
 ALTER TABLE medium_cdtoc ADD CONSTRAINT medium_cdtoc_pkey PRIMARY KEY (id);
 ALTER TABLE medium_format ADD CONSTRAINT medium_format_pkey PRIMARY KEY (id);

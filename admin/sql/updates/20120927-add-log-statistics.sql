@@ -10,5 +10,6 @@ CREATE TABLE log_statistic
 );
 
 ALTER TABLE log_statistic ADD CONSTRAINT log_statistic_pkey PRIMARY KEY (name, category, timestamp);
+ALTER TABLE log_statistic SET SCHEMA statistics;
 
 COMMIT;
