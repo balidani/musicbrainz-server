@@ -1201,7 +1201,8 @@ CREATE TABLE release_group_primary_type (
 
 CREATE TABLE release_group_secondary_type (
     id SERIAL NOT NULL, -- pk
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 CREATE TABLE release_group_secondary_type_join (
@@ -1229,21 +1230,6 @@ CREATE TABLE script_language
     script              INTEGER NOT NULL, -- references script.id
     language            INTEGER NOT NULL, -- references language.id
     frequency           INTEGER NOT NULL DEFAULT 0
-);
-
-CREATE TABLE statistic
-(
-    id                  SERIAL,
-    name                VARCHAR(100) NOT NULL,
-    value               INTEGER NOT NULL,
-    date_collected      date NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE statistic_event (
-    date DATE NOT NULL CHECK (date >= '2000-01-01'), -- PK
-    title TEXT NOT NULL,
-    link TEXT NOT NULL,
-    description TEXT NOT NULL
 );
 
 CREATE TABLE tag

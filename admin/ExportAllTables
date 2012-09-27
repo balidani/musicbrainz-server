@@ -41,8 +41,6 @@ my @tables = qw(
     artist_rating_raw
     artist_tag_raw
     cdtoc_raw
-    statistic
-    statistic_event
     edit
     edit_artist
     edit_label
@@ -190,6 +188,13 @@ my @tables = qw(
     work_name
     work_tag
     work_type
+
+    cover_art_archive.art_type
+    cover_art_archive.cover_art
+    cover_art_archive.cover_art_type
+
+    statistics.statistic
+    statistics.statistic_event
 );
 
 my @replication_tables = qw(
@@ -315,8 +320,8 @@ my @group_derived = qw(
     );
 
 my @group_stats = qw(
-    statistic
-    statistic_event
+    statistics.statistic
+    statistics.statistic_event
 );
 
 my @group_editor = qw(
@@ -375,6 +380,12 @@ my @group_cdstubs = qw(
     cdtoc_raw
     release_raw
     track_raw
+);
+
+my @group_cover_art_archive = (
+    'cover_art_archive.art_type',
+    'cover_art_archive.cover_art',
+    'cover_art_archive.cover_art_type',
 );
 
 my @groups = (
@@ -553,6 +564,8 @@ sub table_rowcount
     my $table = shift;
     $table =~ s/_sanitised$//;
 
+    $table =~ s/.*\.//;
+
     $sql->select_single_value(
         "SELECT reltuples FROM pg_class WHERE relname = ? LIMIT 1",
         $table,
@@ -716,6 +729,7 @@ if ($fCompress and $fDoFullExport)
     make_tar("mbdump-stats.tar.bz2",  @group_stats);
     make_tar("mbdump-private.tar.bz2", @group_private);
     make_tar("mbdump-cdstubs.tar.bz2", @group_cdstubs);
+    make_tar("mbdump-cover-art-archive.tar.bz2", @group_cover_art_archive);
 
     system "/usr/bin/md5sum --binary $OutputDir/*.tar.bz2 > $OutputDir/MD5SUMS";
     $? == 0 or die "md5sum returned $?";
